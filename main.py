@@ -1,3 +1,5 @@
-print("smthng alois")
+print("Item factory")
 
-input("\nend (3)")
+import app
+
+app.__init__
