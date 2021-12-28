@@ -1,9 +1,14 @@
 import arcade
 
+
+KEYS_UP = [arcade.key.UP, arcade.key.K, arcade.key.Z]
+KEYS_DOWN = [arcade.key.DOWN, arcade.key.J, arcade.key.S]
+KEYS_LEFT = [arcade.key.LEFT, arcade.key.H, arcade.key.Q]
+KEYS_RIGHT = [arcade.key.RIGHT, arcade.key.L, arcade.key.D]
+
+pos = []
+
 class MyGame(arcade.Window):
-    """
-    Main application class.
-    """
 
     def __init__(self):
         # Call the parent class and set up the window
@@ -22,7 +27,7 @@ class MyGame(arcade.Window):
         self.physics_engine = None
 
 
-        arcade.set_background_color((255, 255, 255))
+        arcade.set_background_color((255/3, 255/3, 255/3))
 
     def setup(self):
         self.scene = arcade.Scene() 
@@ -54,39 +59,31 @@ class MyGame(arcade.Window):
 
         # physics
 
-        self.physics_engine = arcade.PhysicsEngineSimple(
-            self.player_sprite,
-            self.block_list
-        )
-
-        pass
+        self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, self.block_list)
 
     def on_key_press(self, key, modifiers):
-        PLAYER_MOVEMENT_SPEED = 3;  
+        PLAYER_MOVEMENT_SPEED = 3
 
-        if key == arcade.key.UP or key == arcade.key.K:
+        if key in KEYS_UP:
             self.player_sprite.change_y = PLAYER_MOVEMENT_SPEED
-        elif key == arcade.key.DOWN or key == arcade.key.J:
+        elif key in KEYS_DOWN:
             self.player_sprite.change_y = -PLAYER_MOVEMENT_SPEED
-        elif key == arcade.key.LEFT or key == arcade.key.H:
+        elif key in KEYS_LEFT:
             self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
-        elif key == arcade.key.RIGHT or key == arcade.key.L:
+        elif key in KEYS_RIGHT:
             self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
         elif key == arcade.key.SPACE:
-            # create a new block
-            conveyor_sprite = arcade.Sprite("assets/blocks/conveyor_0.png", 0.5) 
-            conveyor_sprite.center_x = self.player_sprite.center_x;
-            conveyor_sprite.center_y = self.player_sprite.center_y - 30;
-            self.block_list.append(conveyor_sprite)
-
-            # add
-            self.scene.add_sprite("Blocks", self.block_list[len(self.block_list) - 1])
-
+            self.addBlock(self.player_sprite.center_x, self.player_sprite.center_y)
 
     def on_key_release(self, key, modifiers):
-        """Called when the user releases a key."""
-        self.player_sprite.change_x = 0
-        self.player_sprite.change_y = 0
+        if key in KEYS_UP:
+            self.player_sprite.change_y = 0
+        elif key in KEYS_DOWN:
+            self.player_sprite.change_y = -0
+        elif key in KEYS_LEFT:
+            self.player_sprite.change_x = -0
+        elif key in KEYS_RIGHT:
+            self.player_sprite.change_x = 0
 
     def on_update(self, delta_time):
         """Movement and game logic"""
@@ -99,9 +96,25 @@ class MyGame(arcade.Window):
 
         arcade.start_render()
         self.scene.draw()
-        #self.player_list.draw()
-        #self.block_list.draw()
         # Code to draw the screen goes here
+
+    def addBlock(self, x, y):
+        # create a new block
+        posX = round(x / 16) * 16
+        posY = round((y - 30) / 16) * 16
+
+        if [posX, posY] not in pos:
+            conveyor_sprite = arcade.Sprite("assets/blocks/conveyor_0.png", 0.5)
+            conveyor_sprite.center_x = posX
+            conveyor_sprite.center_y = posY
+            self.block_list.append(conveyor_sprite)
+            pos.append([posX, posY])
+
+            # add
+            self.scene.add_sprite("Block", self.block_list[len(self.block_list) - 1])
+        else:
+            print("overwrite cancceled")
+
 
 
 def main():
@@ -110,9 +123,4 @@ def main():
     window.setup()
     arcade.run()
 
-
-if __name__ == "__main__":
-    main()
-
-
-
+main()
